@@ -6,6 +6,7 @@
 /custom/reports/
 /custom/releases/
 /custom/state/
+/custom/source-commit.txt
 /CLAUDE.md
 
 **/.env

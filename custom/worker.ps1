@@ -68,6 +68,10 @@ try {
     exit 1
 } finally {
     if($result -and $attemptFile){$result | ConvertTo-Json -Depth 6 | Set-Content -Encoding utf8 $attemptFile}
+    # Independent Mac queue: also runs when no NEW upstream tag is queued.
+    # An offline Mac never changes or blocks the already-published Windows feed.
+    try { & (Join-Path $projectRoot 'custom/mac-sync.ps1') -CheckOnly:$CheckOnly }
+    catch { Write-Warning ("Mac phase deferred: "+$_.Exception.Message) }
     try {Stop-Transcript | Out-Null}catch{}
     $mutex.ReleaseMutex();$mutex.Dispose()
 }

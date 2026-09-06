@@ -1,4 +1,4 @@
-# Fluxer LePast (Windows x64)
+# Fluxer LePast (Windows x64 et macOS Apple Silicon)
 
 Client non officiel pour https://chat.lepast.fr, basé sur la Canary Fluxer.
 Sources sous AGPL-3.0-or-later : historique, licences et attributions amont conservés.
@@ -17,10 +17,19 @@ Identité FluxerLePast, protocole fluxer-lepast, profil %APPDATA%/fluxer-lepast.
 Aucune migration/lecture des profils ou identifiants du client officiel.
 Mises à jour exclusivement :
 https://chat.lepast.fr/fluxer-custom/updates/win32-x64/releases.win.json
+https://chat.lepast.fr/fluxer-custom/updates/darwin-arm64/RELEASES.json
+
+Les canaux sont calculés depuis le système et l'architecture du binaire, jamais
+depuis l'agent utilisateur du navigateur. Mac Intel n'est pas distribué.
+La page propose le Mac sur macOS mais indique explicitement la restriction M1+.
 
 Pas de signature Authenticode. Les empreintes SHA-256 détectent la corruption,
 mais ne remplacent pas une signature d'éditeur. HTTPS protège le transport.
 Protéger le VPS et le compte de publication ; ne pas désactiver l'antivirus.
+
+La version macOS est, elle, signée Developer ID et notarifiée par Apple ;
+le ticket est agrafé à l'application et au DMG. Profil séparé :
+~/Library/Application Support/fluxer-lepast. macOS 13 minimum.
 
 NVENC et capture native conservés. Un test d'ouverture ne garantit pas 1440p60
 en appel réel : source, GPU, codec, réception et réseau comptent.
@@ -52,6 +61,22 @@ jamais au worker automatique. Committer le source avant le reçu de publication.
 LEPAST_TEST_PROFILE=smoke isole les tests dans %TEMP%/FluxerCustom-smoke-profile :
 ne pas s'y connecter avec un vrai compte.
 
+## Construire sur le Mac Mini
+
+Workspace dédié : /Users/mac/FluxerCustom. Clé SSH locale mpds_mac.
+`bash custom/mac-bootstrap.sh` installe uniquement les outils de ce projet.
+`bash custom/mac-build.sh` compile les modules natifs Apple Silicon, teste,
+signe et notarifie. Le frontend embarqué doit provenir du même commit/version
+que le paquet Windows validé. `custom/source-commit.txt` porte ce commit.
+Les identifiants Apple existants restent sur le Mac, dans mpds-signing ;
+ils ne sont ni copiés, ni affichés, ni inclus dans le dépôt.
+Un trousseau temporaire est ajouté pendant la signature puis retiré.
+
+Sorties : custom/releases/darwin-arm64/VERSION (ZIP d'update, DMG, reçu, feed).
+`publish-mac.py` refuse toute signature/notarification/test manquant, empreinte
+incorrecte ou URL ne désignant pas exactement le ZIP Mac de cette version.
+Promotion atomique indépendante via public/current-darwin-arm64.
+
 ## Publication
 
 Connexion manuelle depuis le raccourci Fluxer LePast ; aucun mot de passe à fournir
@@ -78,6 +103,12 @@ release.json indique le commit source exact et les empreintes.
 - Échec de compilation/test : version publique inchangée, candidat marqué failed.
   Pas de boucle de tentatives ; on attend un nouveau commit.
 - Après tests : push fast-forward du source, puis promotion des paquets.
+- Mac : la phase `mac-sync.ps1` du même worker compare les deux versions publiques
+  à chaque passage. Elle utilise exclusivement le commit et le bundle Windows
+  déjà validés, puis recompile sur le Mac, signe, notarifie et publie son canal.
+  Mac éteint = report ; échec de construction = maintien de la version Mac
+  précédente et attente d'une nouvelle version. Aucun paquet Windows n'est
+  copié dans le canal Mac. Un checkout Mac modifié ou non fast-forward bloque.
 - Pas de suppression automatique des archives. Publication bloquée sous 2 GiB
   libres sur VPS, construction bloquée sous 15 GiB sur C:. Nettoyage périodique
   à effectuer après validation des versions à conserver.
@@ -96,6 +127,8 @@ Pour geler les publications : désactiver la tâche Windows et le timer
 fluxer-custom-check.timer ; ne pas arrêter Fluxer, Hoopa ni Traefik.
 
 Un opérateur peut remettre public/current sur releases/VERSION_PRECEDENTE.
+Pour Mac uniquement : public/current-darwin-arm64 sur
+releases/darwin-arm64/VERSION_PRECEDENTE. Ne pas changer le lien Windows.
 Cela protège les nouvelles installations, mais ne rétrograde pas les clients
 déjà mis à jour : reconstruire le code corrigé avec un numéro supérieur pour eux.
 
@@ -106,3 +139,16 @@ Conserver paquets, sources et profils jusqu'à validation.
 Un retour au client officiel n'est pas un simple changement d'URL d'update :
 identité, protocole, profil et origine sont distincts. Prévoir une migration
 explicite et testée lorsque l'architecture officielle le permettra.
+
+## Régression réception iOS (-2302), corrigée en 1.0.4
+
+LiveKit 1.12 en mode single-PC négociait la réception VP8 avec uniquement H264
+après une émission desktop H264. `singlePeerConnection: false` sépare ces deux
+négociations, sans changer la qualité ni le codec de l'émission.
+Reproduction locale : `node custom/test-codec-interoperability.mjs` avec le
+binaire officiel LiveKit 1.12 Windows placé dans custom/.tools/livekit-1.12.0
+(SHA-256 vérifié contre checksums.txt de cette release officielle).
+Serveur lié uniquement à 127.0.0.1, vidéos canvas et identifiants synthétiques.
+Le test compare le contrôle défectueux et le vrai réglage de l'application,
+et exige plus de 100 images reçues simultanément en VP8 et H264 après correction.
+Il ne remplace pas la confirmation d'un appel iOS réel.
