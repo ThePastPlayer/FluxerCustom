@@ -77,4 +77,7 @@ node -e "if(require(process.argv[1]).status!=='Accepted')throw Error('DMG notari
 xcrun stapler staple "$DMG"
 xcrun stapler validate "$DMG"
 node custom/mac-receipt.mjs
+# Discard only this project's reproducible dev compiler cache. Signed releases
+# and the native release cache are retained; the Mac also hosts other projects.
+cargo clean --manifest-path "$ROOT/tools/ci/Cargo.toml" --target-dir "$CARGO_TARGET_DIR" --profile dev
 echo "Signed, notarized and verified macOS release: $VERSION"
