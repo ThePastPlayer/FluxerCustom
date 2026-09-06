@@ -1,0 +1,13 @@
+Fluxer LePast — distribution communautaire non officielle
+
+Base Fluxer : Copyright 2026 Fluxer Platform AB et contributeurs.
+Modifications LePast : client embarqué, identité, serveur de mises à jour et automatisation.
+Licence : AGPL-3.0-or-later (texte joint dans LICENSE-Fluxer.txt).
+
+Sources complètes et scripts de construction :
+https://github.com/ThePastPlayer/FluxerCustom
+Chaque version publiée référence son commit source exact :
+https://chat.lepast.fr/fluxer-custom/release.json
+
+Distribution non signée par un certificat d'éditeur, non affiliée à Fluxer Platform AB.
+Les marques et licences des composants tiers restent la propriété de leurs auteurs.

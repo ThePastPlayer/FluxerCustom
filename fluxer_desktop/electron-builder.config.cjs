@@ -1290,6 +1290,8 @@ module.exports = {
 		...(targetPlatform === 'linux' ? {desktopName: `${linuxPackageName}.desktop`} : {}),
 	},
 	extraResources: [
+		{from: '../LICENSE', to: 'LICENSE-Fluxer.txt'},
+		{from: '../custom/NOTICE.txt', to: 'NOTICE-LePast.txt'},
 		{from: 'embedded-client', to: 'embedded-client', filter: ['**/*']},
 		{
 			from: `build_resources/${iconDir}/`,
