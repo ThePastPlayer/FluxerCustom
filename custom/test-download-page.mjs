@@ -2,17 +2,23 @@
 import {createRequire} from 'node:module';
 import {readFileSync} from 'node:fs';
 import {createServer} from 'node:http';
+import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 const {_electron}=createRequire(new URL('./test-tools/package.json',import.meta.url))('playwright-core');
 const html=readFileSync(new URL('./server/index.html',import.meta.url));
-const server=createServer((req,res)=>{res.setHeader('Content-Type','text/html; charset=utf-8');res.end(html);});
+const route=readFileSync(new URL('./server/traefik.yml',import.meta.url),'utf8');
+const policy=route.match(/Content-Security-Policy: "([^"]+)"/)[1];
+const script=html.toString('utf8').match(/<script>([\s\S]*?)<\/script>/)[1].replace(/\r\n/g,'\n');
+assert.ok(policy.includes("'sha256-"+createHash('sha256').update(script).digest('base64')+"'"),'CSP must match the current selector');
+const server=createServer((req,res)=>{res.setHeader('Content-Type','text/html; charset=utf-8');res.setHeader('Content-Security-Policy',policy);res.end(html);});
 await new Promise(resolve=>server.listen(17890,'127.0.0.1',resolve));
+const pageUrl=process.argv.includes('--public')?'https://chat.lepast.fr/fluxer-custom/':'http://127.0.0.1:17890/';
 const env={...process.env,LEPAST_TEST_PROFILE:'smoke'};delete env.ELECTRON_RUN_AS_NODE;
 let app;
 try{
  app=await _electron.launch({executablePath:'E:/FluxerCustom/fluxer_desktop/dist-electron/win-unpacked/Fluxer LePast.exe',env,timeout:45000});
  const event=app.waitForEvent('window');
- await app.evaluate(({BrowserWindow})=>{const w=new BrowserWindow({show:false,webPreferences:{offscreen:true,backgroundThrottling:false,nodeIntegration:false,contextIsolation:true}});w.loadURL('http://127.0.0.1:17890');});
+ await app.evaluate(({BrowserWindow},url)=>{const w=new BrowserWindow({show:false,webPreferences:{offscreen:true,backgroundThrottling:false,nodeIntegration:false,contextIsolation:true}});w.loadURL(url);},pageUrl);
  const page=await event;
  await page.addInitScript(()=>{
   const raw=new URL(location.href).searchParams.get('test');
@@ -29,7 +35,8 @@ try{
   ['MacIntel','Mozilla/5.0 Macintosh',5,null],
   ['Linux arm','Mozilla/5.0 Android',5,null],
  ]){
-  await page.goto('http://127.0.0.1:17890/?test='+encodeURIComponent(JSON.stringify({platform,ua,touch})));
+  const response=await page.goto(pageUrl+'?test='+encodeURIComponent(JSON.stringify({platform,ua,touch})));
+  assert.equal(response.headers()['content-security-policy'],policy);
   const href=await page.locator('#recommended a').count()?await page.locator('#recommended a').getAttribute('href'):null;
   assert.ok(expected?href?.startsWith(expected):href===null,platform+' '+touch);
   assert.ok(await page.locator('#mac-download').isVisible());

@@ -77,6 +77,21 @@ Sorties : custom/releases/darwin-arm64/VERSION (ZIP d'update, DMG, reçu, feed).
 incorrecte ou URL ne désignant pas exactement le ZIP Mac de cette version.
 Promotion atomique indépendante via public/current-darwin-arm64.
 
+Validation du 6 septembre 2026 : une copie de test signée 1.0.3 a téléchargé
+le ZIP sur le vrai canal HTTPS Mac, puis installé la 1.0.4 au même emplacement.
+Signature et Gatekeeper vérifiés après remplacement (`test-mac-update.mjs`).
+Rapports locaux : custom/reports/mac-update.json et codec-interoperability.json.
+La capture écran Mac nécessite l'autorisation système au premier usage ;
+le test de lancement ne la donne pas à la place de l'utilisateur.
+
+La détection du système sur la page est autorisée par une empreinte CSP précise
+dans custom/server/traefik.yml, pas par un droit général aux scripts inline.
+Après modification du script HTML, actualiser cette empreinte puis exécuter
+`node custom/test-download-page.mjs --public` après déploiement. Ce test vérifie
+Mac, Windows, iPad/Android et la CSP effectivement renvoyée par le serveur.
+Sauvegarde de la page/route antérieures :
+/opt/fluxer-custom/backups/distribution-20260906-macos.
+
 ## Publication
 
 Connexion manuelle depuis le raccourci Fluxer LePast ; aucun mot de passe à fournir

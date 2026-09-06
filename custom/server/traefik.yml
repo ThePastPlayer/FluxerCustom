@@ -5,7 +5,14 @@ http:
       entryPoints: [websecure]
       priority: 20000
       service: fluxer-custom-downloads
+      middlewares: [fluxer-custom-download-policy]
       tls: {}
+  middlewares:
+    fluxer-custom-download-policy:
+      headers:
+        customResponseHeaders:
+          # Hash of the single inline platform selector in index.html (LF).
+          Content-Security-Policy: "default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-XS3sGvSWPvzzQBkreeCcs5SXLvep2fozTs+zlElkZHE='; base-uri 'none'; frame-ancestors 'none'"
   services:
     fluxer-custom-downloads:
       loadBalancer:

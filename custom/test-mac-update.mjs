@@ -13,9 +13,13 @@ let installing=false;
 try{
  const page=await app.firstWindow();await page.waitForURL('https://client.fluxer.invalid/**');
  const before=await app.evaluate(({app,autoUpdater})=>{
-  globalThis.__macUpdateProof={events:[],downloaded:false,error:null};
+  globalThis.__macUpdateProof={events:[],downloaded:false,error:null,duplicateChecks:0};
   for(const name of ['checking-for-update','update-available','update-not-available'])autoUpdater.on(name,()=>globalThis.__macUpdateProof.events.push(name));
-  autoUpdater.on('error',error=>{globalThis.__macUpdateProof.error=error.message;});
+  autoUpdater.on('error',error=>{
+   // The startup check can already be running when the test requests a check.
+   if(error.message==='The command is disabled and cannot be executed'){globalThis.__macUpdateProof.duplicateChecks++;return;}
+   globalThis.__macUpdateProof.error=error.message;
+  });
   autoUpdater.on('update-downloaded',()=>{globalThis.__macUpdateProof.downloaded=true;});
   return {version:app.getVersion(),feed:autoUpdater.getFeedURL()};
  });
