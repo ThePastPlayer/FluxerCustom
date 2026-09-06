@@ -1,3 +1,11 @@
+# Fluxer LePast — client communautaire non officiel
+
+Client Windows pour **chat.lepast.fr**, interface embarquée et mises à jour LePast.
+
+[Télécharger](https://chat.lepast.fr/fluxer-custom/) · [Architecture, construction et retour arrière](custom/README.md)
+
+La documentation amont est conservée ci-dessous. Cette distribution n'est pas affiliée à Fluxer Platform AB.
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./fluxer_static/marketing/branding/logo-white.svg">

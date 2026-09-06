@@ -319,6 +319,9 @@ export function getCustomAppUrl(): string | null {
 }
 
 export function setRuntimeAppUrlOverride(appUrl: string | null): void {
+	if (appUrl !== null && appUrl !== STABLE_APP_URL) {
+		throw new Error('Fluxer LePast only loads its embedded client.');
+	}
 	runtimeAppUrlOverride = appUrl;
 }
 

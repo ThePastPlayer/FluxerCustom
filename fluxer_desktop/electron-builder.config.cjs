@@ -7,11 +7,11 @@ const os = require('node:os');
 const path = require('node:path');
 const {promisify} = require('node:util');
 const execFileAsync = promisify(execFile);
-const productName = isCanary ? 'Fluxer Canary' : 'Fluxer';
-const artifactProductName = isCanary ? 'Fluxer-Canary' : 'Fluxer';
-const appId = isCanary ? 'app.fluxer.canary' : 'app.fluxer';
+const productName = 'Fluxer LePast';
+const artifactProductName = 'Fluxer-LePast';
+const appId = 'fr.lepast.fluxer';
 const iconDir = isCanary ? 'icons-canary' : 'icons-stable';
-const packageName = isCanary ? 'fluxer_desktop_canary' : 'fluxer_desktop';
+const packageName = 'FluxerLePast';
 const linuxPackageName = isCanary ? 'fluxer-canary' : 'fluxer';
 const linuxDesktopActionIds = ['open-settings', 'new-dm'];
 const linuxDesktopActionList = `${linuxDesktopActionIds.join(';')};`;
@@ -1290,6 +1290,7 @@ module.exports = {
 		...(targetPlatform === 'linux' ? {desktopName: `${linuxPackageName}.desktop`} : {}),
 	},
 	extraResources: [
+		{from: 'embedded-client', to: 'embedded-client', filter: ['**/*']},
 		{
 			from: `build_resources/${iconDir}/`,
 			to: 'icons',
@@ -1379,7 +1380,7 @@ module.exports = {
 		{
 			name: appId,
 			role: 'Viewer',
-			schemes: ['fluxer'],
+			schemes: ['fluxer-lepast'],
 		},
 	],
 	beforePack: verifyNativePackageInputs,

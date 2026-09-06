@@ -1,4 +1,11 @@
 /AGENTS.md
+/fluxer_desktop/embedded-client*/
+/fluxer_desktop/dist-electron/
+/custom/.tools/
+/custom/backups/
+/custom/reports/
+/custom/releases/
+/custom/state/
 /CLAUDE.md
 
 **/.env

@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly upstream check for Fluxer LePast
+
+[Timer]
+OnCalendar=Mon *-*-* 04:00:00 UTC
+Persistent=true
+RandomizedDelaySec=900
+Unit=fluxer-custom-check.service
+
+[Install]
+WantedBy=timers.target

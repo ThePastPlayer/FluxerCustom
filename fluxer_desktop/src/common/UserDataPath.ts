@@ -18,8 +18,8 @@ interface ChannelStorageDirectoryMap {
 }
 
 const channelStorageDirectoryMap: ChannelStorageDirectoryMap = {
-	stable: 'fluxer',
-	canary: 'fluxercanary',
+	stable: 'fluxer-lepast',
+	canary: 'fluxer-lepast',
 };
 
 let portableMode = false;
@@ -73,7 +73,9 @@ function resolveUserDataPaths(channel: BuildChannel): {
 		fs.mkdirSync(base, {recursive: true});
 		return {directoryName, base, portable};
 	}
-	const appDataPath = app.getPath('appData');
+	const appDataPath = process.env.LEPAST_TEST_PROFILE === 'smoke'
+		? path.join(app.getPath('temp'), 'FluxerCustom-smoke-profile')
+		: app.getPath('appData');
 	const base = path.join(appDataPath, directoryName);
 	return {directoryName, base, portable};
 }

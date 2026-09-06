@@ -1,0 +1,13 @@
+http:
+  routers:
+    fluxer-custom-downloads:
+      rule: "Host(`chat.lepast.fr`) && (Path(`/fluxer-custom`) || PathPrefix(`/fluxer-custom/`))"
+      entryPoints: [websecure]
+      priority: 20000
+      service: fluxer-custom-downloads
+      tls: {}
+  services:
+    fluxer-custom-downloads:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:8179"

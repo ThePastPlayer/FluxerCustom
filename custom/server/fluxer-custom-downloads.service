@@ -1,0 +1,20 @@
+[Unit]
+Description=Fluxer LePast public downloads (loopback only)
+After=network.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+ExecStart=/usr/bin/python3 /opt/fluxer-custom/bin/downloads.py
+Restart=on-failure
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+MemoryMax=256M
+TasksMax=64
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+UMask=0022
+
+[Install]
+WantedBy=multi-user.target

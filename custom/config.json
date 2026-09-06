@@ -1,0 +1,12 @@
+{
+  "name": "Fluxer LePast",
+  "packageId": "FluxerLePast",
+  "version": "1.0.0",
+  "instance": "https://chat.lepast.fr",
+  "embeddedOrigin": "https://client.fluxer.invalid",
+  "downloadPage": "https://chat.lepast.fr/fluxer-custom/",
+  "updateBase": "https://chat.lepast.fr/fluxer-custom/updates/win32-x64",
+  "upstreamRepository": "fluxerapp/fluxer",
+  "upstreamTag": "fluxer-desktop-canary@2026.904.135113",
+  "upstreamCommit": "bc7f701e876fde99ecd5088152981015bd823484"
+}

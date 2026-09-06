@@ -1,0 +1,12 @@
+[Unit]
+Description=Check official Fluxer desktop Canary (no build or publication)
+
+[Service]
+Type=oneshot
+User=ubuntu
+ExecStart=/usr/bin/python3 /opt/fluxer-custom/bin/check-upstream.py
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/fluxer-custom/state

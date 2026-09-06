@@ -2,6 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import {registerEmbeddedClient} from './EmbeddedClient';
 import {
 	getConfiguredChromiumSwitches,
 	getDesktopTroubleshootingSettings,
@@ -313,6 +314,7 @@ if (launchConfigurationError) {
 			.then(() => app.whenReady())
 			.then(async () => {
 				log.info('App ready, initializing...');
+				await registerEmbeddedClient();
 				await runStartupPhaseAsync('launch-net-log', startLaunchNetLog);
 				try {
 					await runStartupPhaseAsync('desktop-debug-info', async () => {
