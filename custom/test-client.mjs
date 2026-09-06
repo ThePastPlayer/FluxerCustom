@@ -36,6 +36,19 @@ test('updater has no upstream fallback', () => {
 	assert.ok(!source.includes('https://api.canary.fluxer.app'));
 	assert.ok(!source.includes('https://canary.fluxer.app/download'));
 });
+
+test('macOS and Windows update URLs are derived separately from the native runtime', () => {
+	const source=load('src/main/Updater.ts');
+	const start=source.indexOf('function getDesktopDownloadArch(');
+	const end=source.indexOf('const DOWNLOAD_PAGE_URL');
+	assert.ok(start>=0 && end>start);
+	const code=esbuild.transformSync(source.slice(start,end)+'\nexport {UPDATE_BASE_URL};',{loader:'ts',format:'cjs'}).code;
+	for(const [platform,arch,expected] of [['darwin','arm64','darwin-arm64'],['win32','x64','win32-x64'],['darwin','x64','darwin-x64']]){
+		const module={exports:{}};
+		vm.runInNewContext(code,{module,exports:module.exports,process:{platform,arch}});
+		assert.equal(module.exports.UPDATE_BASE_URL,'https://chat.lepast.fr/fluxer-custom/updates/'+expected);
+	}
+});
 test('official profiles and deep-link scheme stay untouched', () => {
 	const identity = load('src/common/DesktopIdentity.ts');
 	const storage = load('src/common/UserDataPath.ts');

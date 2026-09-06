@@ -1,0 +1,17 @@
+# Disposable loopback-only integration server. Synthetic keys, never production.
+port: 17880
+bind_addresses: [127.0.0.1]
+rtc:
+  node_ip: 127.0.0.1
+  use_external_ip: false
+  tcp_port: 17881
+  udp_port: 17882
+keys:
+  codec-test: synthetic-local-test-key-not-production
+room:
+  enabled_codecs:
+    - mime: audio/opus
+    - mime: audio/red
+    - mime: video/VP8
+    - mime: video/H264
+    - mime: video/rtx

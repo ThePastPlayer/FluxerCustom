@@ -160,6 +160,10 @@ function createRoomOptions(
 	e2eeWorker: Worker | null;
 } {
 	const roomOptions: RoomOptions = {
+		// LePast: LiveKit 1.12 single-PC negotiation binds incoming VP8 to an
+		// H264-only codec set after desktop publishing. Keep receive negotiation
+		// independent so iOS VP8 and desktop H264 streams can coexist.
+		singlePeerConnection: false,
 		adaptiveStream: false,
 		dynacast: true,
 		webAudioMix: createWebAudioMixOption(),

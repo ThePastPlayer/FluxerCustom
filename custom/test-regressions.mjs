@@ -13,6 +13,19 @@ function load(p,globals={},extra='') {
  return module.exports;
 }
 const trust=load('features/platform/transport/ApiRequestTrust.ts');
+test('room creation separates receive negotiation without changing publish defaults',()=>{
+ const source=read('features/voice/engine/v2/VoiceEngineV2AppConnectionHostAdapter.ts');
+ const functionSource=source.slice(source.indexOf('function createRoomOptions('),source.indexOf('function createRoomConnectOptions('));
+ const module={exports:{}};
+ const publishDefaults={videoCodec:'h264',screenShareEncoding:{maxFramerate:60}};
+ vm.runInNewContext(esbuild.transformSync(functionSource+'\nexport {createRoomOptions};',{loader:'ts',format:'cjs'}).code,
+  {module,exports:module.exports,createRoomPublishDefaults:()=>publishDefaults,createWebAudioMixOption:()=>false});
+ const {roomOptions}=module.exports.createRoomOptions(null,['av1']);
+ assert.equal(roomOptions.singlePeerConnection,false);
+ assert.equal(roomOptions.publishDefaults,publishDefaults);
+ assert.equal(roomOptions.subscriberVideoCodecExclusions[0],'av1');
+ assert.equal(roomOptions.dynacast,true);
+});
 const documentOrigin='https://client.fluxer.invalid';
 const baseUrl='https://chat.lepast.fr/api';
 test('embedded client trusts relative calls to its configured API',()=>{
