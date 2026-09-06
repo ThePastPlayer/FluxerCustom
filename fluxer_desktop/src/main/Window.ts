@@ -635,8 +635,8 @@ export function desktopTransparencyPendingRestart(): boolean {
 	return getDesktopWindowBehaviorSettings().allowTransparency !== initialAllowTransparency;
 }
 
-function getLinuxWindowIconPath(): string | null {
-	const baseIconName = '512x512.png';
+function getDesktopWindowIconPath(): string | null {
+	const baseIconName = process.platform === 'win32' ? 'icon.ico' : '512x512.png';
 	const candidatePaths = [
 		path.join(process.resourcesPath, 'icons', baseIconName),
 		path.join(process.resourcesPath, baseIconName),
@@ -664,8 +664,8 @@ function getVoicePopoutWindowOptions(): Electron.BrowserWindowConstructorOptions
 		autoHideMenuBar: true,
 		show: true,
 	};
-	if (isLinux) {
-		const iconPath = getLinuxWindowIconPath();
+	if (isLinux || process.platform === 'win32') {
+		const iconPath = getDesktopWindowIconPath();
 		if (iconPath) {
 			options.icon = iconPath;
 		}
@@ -741,8 +741,8 @@ export function createWindow(options: CreateWindowOptions = {}): BrowserWindow {
 		acceptFirstMouse: acceptFirstMouseOnFocus,
 		webPreferences: getSharedWebPreferences(allowTransparency, useNativeTitleBar, appUrl),
 	};
-	if (isLinux) {
-		const iconPath = getLinuxWindowIconPath();
+	if (isLinux || process.platform === 'win32') {
+		const iconPath = getDesktopWindowIconPath();
 		if (iconPath) {
 			windowOptions.icon = iconPath;
 		}

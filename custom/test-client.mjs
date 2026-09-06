@@ -45,3 +45,10 @@ test('official profiles and deep-link scheme stay untouched', () => {
 	assert.ok(load('src/common/Constants.ts').includes("APP_PROTOCOL = 'fluxer-lepast'"));
 	assert.ok(load('src/common/DesktopConfig.ts').includes('only loads its embedded client'));
 });
+test('Windows main window and voice popout explicitly use the packaged Fluxer icon', () => {
+	const source = load('src/main/Window.ts');
+	assert.ok(source.includes("process.platform === 'win32' ? 'icon.ico'"));
+	assert.equal(source.match(/if \(isLinux \|\| process.platform === 'win32'\)/g)?.length, 2);
+	assert.ok(source.includes('windowOptions.icon = iconPath'));
+	assert.ok(source.includes('options.icon = iconPath'));
+});

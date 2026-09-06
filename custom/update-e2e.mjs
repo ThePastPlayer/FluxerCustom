@@ -32,8 +32,8 @@ try{
  // Keep the real renderer IPC entry point, but suppress its optional relaunch so
  // the test can reopen the installed binary in a clean Playwright session.
  // No replacement of update logic, feed, hash checks or package application.
- await instance.evaluate(async()=>{
-   const {createRequire}=await import('node:module');
+ await instance.evaluate(()=>{
+   const {createRequire}=process.getBuiltinModule('node:module');
    const require=createRequire(process.resourcesPath+'/app.asar/package.json');
    const {UpdateManager}=require('velopack');
    const original=UpdateManager.prototype.waitExitThenApplyUpdate;

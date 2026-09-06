@@ -59,5 +59,5 @@ Invoke-Step 'node' @('--test','custom/test-client.mjs')
 Invoke-Step 'node' @('custom/smoke-electron.mjs','--packaged')
 $vpk = Join-Path $projectRoot 'custom/.tools/velopack/vpk.exe'
 if(-not (Test-Path $vpk)){Invoke-Step 'dotnet' @('tool','install','vpk','--version','0.0.1298','--tool-path',(Split-Path $vpk))}
-Invoke-Step $vpk @('pack','--packId','FluxerLePast','--packVersion',$config.version,'--packDir','fluxer_desktop/dist-electron/win-unpacked','--mainExe','Fluxer LePast.exe','--packTitle','Fluxer LePast','--packAuthors','LePast; Fluxer contributors','--runtime','win-x64','--channel','win','--outputDir',("custom/releases/"+$config.version),'--delta','None','--icon','fluxer_desktop/build_resources/icons-canary/icon.ico')
+Invoke-Step $vpk @('pack','--packId','FluxerLePast','--packVersion',$config.version,'--packDir','fluxer_desktop/dist-electron/win-unpacked','--mainExe','Fluxer LePast.exe','--packTitle','Fluxer LePast','--packAuthors','LePast; Fluxer contributors','--runtime','win-x64','--channel','win','--outputDir',("custom/releases/"+$config.version),'--delta','None','--icon','fluxer_desktop/build_resources/icons-stable/icon.ico')
 Invoke-Step 'node' @('custom/release-receipt.mjs')
