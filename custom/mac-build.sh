@@ -15,7 +15,7 @@ export CARGO_BUILD_JOBS=4 RAYON_NUM_THREADS=4
 export MACOSX_DEPLOYMENT_TARGET=13.0
 node -e "const fs=require('fs');const m=JSON.parse(fs.readFileSync('fluxer_desktop/embedded-client/manifest-integrity.json'));if(m.version!==process.env.VERSION)throw Error('Embedded version mismatch');"
 cd fluxer_desktop
-node scripts/build.mjs
+if [ "${LEPAST_SKIP_COMPILE:-0}" != 1 ]; then node scripts/build.mjs; fi
 pnpm exec tsgo --noEmit
 node --test src/main/NativeScreenCapture.test.mjs src/main/NativeScreenCaptureValidation.test.mjs src/main/NativeHardwareEncoder.test.mjs
 cd "$ROOT"
@@ -39,7 +39,7 @@ security unlock-keychain -p "$KCPW" "$KC"
 security import "$P12" -k "$KC" -P "$P12PW" -T /usr/bin/codesign >/dev/null
 security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KCPW" "$KC" >/dev/null
 export CSC_KEYCHAIN="$KC"
-export CSC_NAME=$(security find-identity -v -p codesigning "$KC" | sed -n 's/.*"\(Developer ID Application:.*\)"/\1/p' | head -n 1)
+export CSC_NAME=$(security find-identity -v -p codesigning "$KC" | awk '/Developer ID Application:/ {print $2; exit}')
 [ -n "$CSC_NAME" ] || { echo 'Developer ID Application identity missing'; exit 1; }
 export CSC_IDENTITY_AUTO_DISCOVERY=true
 cd "$ROOT/fluxer_desktop"
@@ -61,7 +61,7 @@ spctl --assess --type execute --verbose=2 "$APP"
 # Zip the stapled app for Squirrel.Mac updates (same signed code, added ticket).
 ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
 DMGROOT=$(mktemp -d "$ROOT/custom/.tools/fluxer-dmg.XXXXXX")
-ditto "$APP" "$DMGROOT/Fluxer LePast.app"
+cp -cRp "$APP" "$DMGROOT/Fluxer LePast.app"
 ln -s /Applications "$DMGROOT/Applications"
 DMG="$OUT/Fluxer-LePast-$VERSION-darwin-arm64.dmg"
 hdiutil create -volname 'Fluxer LePast' -srcfolder "$DMGROOT" -ov -format UDZO "$DMG"
