@@ -63,12 +63,10 @@ import {ScreenShareAudioCaptureError} from '@app/features/voice/utils/ScreenShar
 import {ScreenShareRollbackIncompleteError} from '@app/features/voice/utils/ScreenShareRollbackIncompleteError';
 import {applyCameraMirrorProcessor} from '@app/features/voice/utils/VideoBackgroundProcessor';
 import {
-	createLocalAudioTrack,
-	createLocalVideoTrack,
 	LocalAudioTrack,
 	type LocalParticipant,
 	type LocalTrackPublication,
-	type LocalVideoTrack,
+	LocalVideoTrack,
 	type Room,
 	type ScreenShareCaptureOptions,
 	Track,
@@ -378,30 +376,19 @@ export class VoiceEngineV2AppScreenShareLiveKitFlows {
 		createdTracks: Array<LocalAudioTrack | LocalVideoTrack>,
 	): Promise<{videoTrack: LocalVideoTrack; audioTrack: LocalAudioTrack | undefined}> {
 		assert.ok(createdTracks);
-		const {videoDeviceId, audioDeviceId, resolution} = options || {};
+		const {audioDeviceId} = options || {};
 		await ensureNativeCameraPermissionForDeviceShare('start');
 		if (audioDeviceId !== undefined) {
 			await ensureNativeMicrophonePermissionForDeviceShare('start');
 		}
-		const videoTrack = await createLocalVideoTrack({
-			deviceId: videoDeviceId && videoDeviceId !== 'default' ? videoDeviceId : undefined,
-			resolution: resolution
-				? {width: resolution.width, height: resolution.height, frameRate: resolution.frameRate}
-				: undefined,
-		});
+		// Acquire the selected video and its audio together. Never silently open
+		// another webcam when an exclusive UVC device is temporarily busy.
+		const captured = await createDeviceReplacementTracks(options);
+		const videoTrack = new LocalVideoTrack(captured.videoTrack);
 		createdTracks.push(videoTrack);
-		await applyCameraMirrorProcessor(videoTrack);
 		let audioTrack: LocalAudioTrack | undefined;
-		if (audioDeviceId !== undefined) {
-			audioTrack = await createLocalAudioTrack({
-				deviceId: audioDeviceId || undefined,
-				echoCancellation: false,
-				noiseSuppression: false,
-				autoGainControl: false,
-				voiceIsolation: false,
-				channelCount: 2,
-				sampleRate: 48000,
-			});
+		if (captured.audioTrack) {
+			audioTrack = new LocalAudioTrack(captured.audioTrack);
 			createdTracks.push(audioTrack);
 		}
 		return {videoTrack, audioTrack};
@@ -622,6 +609,8 @@ export class VoiceEngineV2AppScreenShareLiveKitFlows {
 				publishedTracks,
 				error,
 			);
+			await this.adapter.applyPendingScreenShareRequestsInternal(room, participant);
+			throw error;
 		}
 		await this.adapter.applyPendingScreenShareRequestsInternal(room, participant);
 	}

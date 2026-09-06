@@ -872,6 +872,7 @@ export async function startConfiguredDeviceScreenShare(videoDeviceId: string): P
 				error,
 				videoDeviceId,
 			});
+			throw error;
 		}
 		const didStart = didScreenShareStart();
 		if (didStart) ActiveScreenShareSource.setPublishedSource('device', null);

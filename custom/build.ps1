@@ -55,7 +55,7 @@ try {
     Invoke-Step 'node' @('--test','src/main/NativeScreenCapture.test.mjs','src/main/NativeScreenCaptureValidation.test.mjs','src/main/NativeHardwareEncoder.test.mjs')
     Invoke-Step 'pnpm' @('exec','electron-builder','--config','electron-builder.config.cjs','--win','--x64','--dir')
 } finally { Pop-Location }
-Invoke-Step 'node' @('--test','custom/test-client.mjs')
+Invoke-Step 'node' @('--test','custom/test-client.mjs','custom/test-regressions.mjs')
 Invoke-Step 'node' @('custom/smoke-electron.mjs','--packaged')
 $vpk = Join-Path $projectRoot 'custom/.tools/velopack/vpk.exe'
 if(-not (Test-Path $vpk)){Invoke-Step 'dotnet' @('tool','install','vpk','--version','0.0.1298','--tool-path',(Split-Path $vpk))}

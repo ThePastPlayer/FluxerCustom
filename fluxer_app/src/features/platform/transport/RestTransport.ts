@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import {HttpError, type HttpErrorDetail} from '@app/features/platform/types/EndpointError';
+import {isTrustedApiRequest} from '@app/features/platform/transport/ApiRequestTrust';
 import type {
 	HttpMethod,
 	MultipartBody,
@@ -319,14 +320,14 @@ function composePlan(
 ): Plan {
 	const url = resolveUrl(state, path, options.query);
 	const body = encodeBody(options);
-	const sameOrigin = !looksAbsolute(path) && !isOffOrigin(url);
+	const apiRequest = isTrustedApiRequest(path, url, state.baseUrl, window.location.origin);
 	const headers = assembleHeaders({
 		state,
 		callerHeaders: options.headers,
 		body,
 		reason: options.reason,
 		auth: options.auth,
-		sameOrigin,
+		apiRequest,
 	});
 	return {
 		method,
@@ -363,14 +364,6 @@ function resolveUrl(state: RuntimeState, path: string, query: RestRequestOptions
 
 function looksAbsolute(path: string): boolean {
 	return path.startsWith('//') || /^[a-z][a-z0-9+.-]*:\/\//i.test(path);
-}
-
-function isOffOrigin(url: string): boolean {
-	try {
-		return new URL(url).origin !== window.location.origin;
-	} catch {
-		return false;
-	}
 }
 
 function encodeBody(options: RestRequestOptions): BodyShape {
@@ -429,23 +422,23 @@ interface AssembleHeadersInput {
 	body: BodyShape;
 	reason: string | undefined;
 	auth: RestAuthMode | undefined;
-	sameOrigin: boolean;
+	apiRequest: boolean;
 }
 
 function assembleHeaders(input: AssembleHeadersInput): Record<string, string> {
 	const accumulator: Record<string, string> = {};
-	if (input.sameOrigin) {
+	if (input.apiRequest) {
 		accumulator['X-Fluxer-Features'] = 'view_channel_members_permission';
 	}
 	const contentType = inferContentType(input.body);
 	if (contentType) accumulator['Content-Type'] = contentType;
 	if (input.reason) accumulator['X-Audit-Log-Reason'] = encodeURIComponent(input.reason);
-	if (input.auth !== 'none' && input.sameOrigin) {
+	if (input.auth !== 'none' && input.apiRequest) {
 		const token = input.state.authProvider();
 		if (token) accumulator['Authorization'] = token;
 	}
 	const sudoToken = input.state.sudo?.tokenProvider() ?? null;
-	if (sudoToken && input.sameOrigin) accumulator[SUDO_HEADER] = sudoToken;
+	if (sudoToken && input.apiRequest) accumulator[SUDO_HEADER] = sudoToken;
 	if (input.callerHeaders) {
 		for (const [name, value] of Object.entries(input.callerHeaders)) {
 			accumulator[name] = value;

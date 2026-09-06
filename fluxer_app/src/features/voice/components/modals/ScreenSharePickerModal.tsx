@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import {showGenericErrorModal} from '@app/features/app/components/alerts/GenericErrorModalCommands';
+import {deviceShareErrorMessage} from '@app/features/voice/utils/DeviceShareErrorMessage';
 import * as Modal from '@app/features/app/components/dialogs/Modal';
 import {PRODUCT_NAME} from '@app/features/app/config/I18nDisplayConstants';
 import Channels from '@app/features/channel/state/Channels';
@@ -1338,11 +1339,14 @@ const ScreenSharePickerModalLoadedContent = observer(
 							selectedCard?.title ?? selectedSource?.name ?? cardId,
 						);
 						ModalCommands.pop();
-					} else if (activeTab !== 'devices') {
+					} else if (activeTab === 'devices') {
+						setDeviceSelectionError(deviceShareErrorMessage(null, i18n.locale));
+					} else {
 						void loadDesktopSources({force: true, silent: true});
 					}
 				} catch (error) {
 					logger.warn('Screen share selection failed; invalidating source cache', {error, cardId});
+					if (activeTab === 'devices') setDeviceSelectionError(deviceShareErrorMessage(error, i18n.locale));
 					if (isScreenShareAudioCaptureError(error)) {
 						showGenericErrorModal({
 							title: () => i18n._(SCREEN_SHARE_AUDIO_UNAVAILABLE_TITLE_DESCRIPTOR),

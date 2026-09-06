@@ -80,51 +80,24 @@ function summarizeGetUserMediaError(error: unknown): Record<string, unknown> {
 export async function createDeviceReplacementTracks(
 	options?: DeviceScreenShareCaptureOptions,
 ): Promise<CapturedScreenShareTracks> {
-	const hasDeviceSelection = Boolean(options?.videoDeviceId || options?.audioDeviceId);
 	const exactConstraints = getDeviceMediaConstraints(options, {useExactDeviceId: true, includeResolution: true});
 	let stream: MediaStream;
-	try {
-		stream = await navigator.mediaDevices.getUserMedia(exactConstraints);
-	} catch (initialError) {
-		const overconstrainedField = getOverconstrainedFieldName(initialError);
-		const dropResolutionFirst =
-			overconstrainedField !== undefined && RESOLUTION_CONSTRAINT_NAMES.has(overconstrainedField);
-		logger.warn('getUserMedia failed for device capture; attempting fallback', {
-			...summarizeGetUserMediaError(initialError),
-			dropResolutionFirst,
-		});
-		if (dropResolutionFirst) {
-			try {
-				stream = await navigator.mediaDevices.getUserMedia(
-					getDeviceMediaConstraints(options, {useExactDeviceId: true, includeResolution: false}),
-				);
-			} catch (resolutionFallbackError) {
-				if (!hasDeviceSelection) {
-					throw resolutionFallbackError;
-				}
-				logger.warn('getUserMedia resolution fallback failed; retrying with ideal deviceId', {
-					...summarizeGetUserMediaError(resolutionFallbackError),
-				});
-				stream = await navigator.mediaDevices.getUserMedia(
-					getDeviceMediaConstraints(options, {useExactDeviceId: false, includeResolution: false}),
-				);
+	let constraints = exactConstraints;
+	for (let attempt = 0; ; attempt++) {
+		try {
+			stream = await navigator.mediaDevices.getUserMedia(constraints);
+			break;
+		} catch (error) {
+			const field = getOverconstrainedFieldName(error);
+			if (attempt === 0 && field && RESOLUTION_CONSTRAINT_NAMES.has(field)) {
+				constraints = getDeviceMediaConstraints(options, {useExactDeviceId: true, includeResolution: false});
+			} else if (attempt < 2 && error instanceof Error && error.name === 'NotReadableError') {
+				// A UVC driver can finish releasing its preview after track.stop() returns.
+				await new Promise((resolve) => globalThis.setTimeout(resolve, 400 * (attempt + 1)));
+			} else {
+				throw error;
 			}
-		} else {
-			if (!hasDeviceSelection) {
-				throw initialError;
-			}
-			try {
-				stream = await navigator.mediaDevices.getUserMedia(
-					getDeviceMediaConstraints(options, {useExactDeviceId: false, includeResolution: true}),
-				);
-			} catch (idealFallbackError) {
-				logger.warn('getUserMedia ideal-deviceId fallback failed; retrying without resolution', {
-					...summarizeGetUserMediaError(idealFallbackError),
-				});
-				stream = await navigator.mediaDevices.getUserMedia(
-					getDeviceMediaConstraints(options, {useExactDeviceId: false, includeResolution: false}),
-				);
-			}
+			logger.warn('Retrying selected capture device', {...summarizeGetUserMediaError(error), attempt: attempt + 1});
 		}
 	}
 	const videoTrack = stream.getVideoTracks()[0];

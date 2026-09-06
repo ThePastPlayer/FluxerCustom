@@ -10,6 +10,10 @@ import {
 import {forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState} from 'react';
 
 const MAX_DEVICE_PREVIEW_STREAMS = 4;
+// LePast: UVC/virtual-camera drivers may leave uncancellable getUserMedia calls
+// pending long after the preview deadline. Enumerate cards without opening any
+// camera; acquire ONLY the selected device when the user presses Stream.
+const AUTOMATIC_DEVICE_PREVIEWS = false;
 const DEVICE_PREVIEW_IDEAL_WIDTH = 320;
 const DEVICE_PREVIEW_IDEAL_HEIGHT = 180;
 const DEVICE_PREVIEW_IDEAL_FRAME_RATE = 12;
@@ -412,7 +416,7 @@ export const PickerGrid = forwardRef<PickerGridHandle, PickerGridProps>(function
 	const visibleCards = useVisibleDeviceCards(cards, activeTab === 'devices');
 	const devicePreviews = useDevicePreviewStreams(
 		cards,
-		activeTab === 'devices' && devicePreviewsEnabled,
+		activeTab === 'devices' && devicePreviewsEnabled && AUTOMATIC_DEVICE_PREVIEWS,
 		selectedCardId,
 		visibleCards.cardIds,
 	);
