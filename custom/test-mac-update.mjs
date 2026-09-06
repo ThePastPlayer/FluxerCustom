@@ -46,4 +46,17 @@ try{
  execFileSync('/usr/sbin/spctl',['--assess','--type','execute',base]);
  writeFileSync('custom/reports/mac-update.json',JSON.stringify({passed:true,before,after,state},null,2));
  console.log('Real Mac automatic update installed: 1.0.3 -> 1.0.4; signature and Gatekeeper valid.');
-}finally{if(!installing)await app.close();}
+}finally{
+ if(!installing)await app.close();
+ else {
+  // Squirrel can relaunch after installation. Stop only this disposable
+  // executable, never a normal /Applications client or another project.
+  await delay(2500);
+  const executable=base+'/Contents/MacOS/Fluxer LePast';
+  const processes=execFileSync('/bin/ps',['-axo','pid=,comm='],{encoding:'utf8'});
+  for(const line of processes.split('\n')){
+   const match=line.match(/^\s*(\d+)\s+(.+)$/);
+   if(match?.[2]===executable){try{process.kill(Number(match[1]),'SIGTERM');}catch{}}
+  }
+ }
+}
