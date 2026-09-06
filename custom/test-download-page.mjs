@@ -34,15 +34,32 @@ try{
   ['Win32','Mozilla/5.0 Windows NT 10.0',0,'updates/win32-x64/'],
   ['MacIntel','Mozilla/5.0 Macintosh',5,null],
   ['Linux arm','Mozilla/5.0 Android',5,null],
+  ['iPhone','Mozilla/5.0 iPhone',5,null],
+  ['Linux x86_64','Mozilla/5.0 Linux',0,null],
+  ['','',0,null],
  ]){
   const response=await page.goto(pageUrl+'?test='+encodeURIComponent(JSON.stringify({platform,ua,touch})));
   assert.equal(response.headers()['content-security-policy'],policy);
-  const href=await page.locator('#recommended a').count()?await page.locator('#recommended a').getAttribute('href'):null;
-  assert.ok(expected?href?.startsWith(expected):href===null,platform+' '+touch);
+  const href=await page.locator('#primary-download').getAttribute('href');
+  assert.ok(expected?href?.startsWith(expected):href==='#downloads',platform+' '+touch);
+  assert.equal(await page.locator('a.button:visible').count(),1);
+  assert.equal(await page.locator('#downloads').evaluate(el=>el.open),false);
+  assert.equal(await page.locator('#mac-download').isVisible(),false);
+  assert.equal(await page.locator('#windows-download').isVisible(),false);
+  if(platform==='MacIntel' && touch===0){await page.setViewportSize({width:1200,height:1250});await page.screenshot({path:'custom/reports/download-page-mac.png',fullPage:true});}
+  // Native details must be keyboard accessible as well as clickable.
+  await page.locator('#downloads summary').focus();
+  await page.keyboard.press('Enter');
   assert.ok(await page.locator('#mac-download').isVisible());
   assert.ok(await page.locator('#windows-download').isVisible());
-  if(platform==='MacIntel' && touch===0){await page.setViewportSize({width:1200,height:1250});await page.screenshot({path:'custom/reports/download-page-mac.png',fullPage:true});}
   if(touch===5){await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);}
+  await page.locator('#downloads summary').click();
+  assert.equal(await page.locator('#downloads').evaluate(el=>el.open),false);
+  if(!expected){
+   await page.locator('#primary-download').click();
+   assert.equal(await page.locator('#downloads').evaluate(el=>el.open),true);
+   assert.ok(await page.locator('#windows-download').isVisible());
+  }
  }
- console.log('Download page: Mac, Windows, iPad, Android and narrow layout passed.');
+ console.log('Download page: one primary button, collapsed alternatives, keyboard toggle, Mac/Windows/mobile/unknown detection and narrow layout passed.');
 }finally{await app?.close();server.close();}
