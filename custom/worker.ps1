@@ -4,6 +4,8 @@ $env:GIT_TERMINAL_PROMPT='0'
 $env:GCM_INTERACTIVE='never'
 $projectRoot=Split-Path $PSScriptRoot -Parent
 $stateDir=Join-Path $projectRoot 'custom/state'
+$result=$null
+$attemptFile=$null
 New-Item -ItemType Directory -Force -Path $stateDir | Out-Null
 $mutex=[Threading.Mutex]::new($false,'Local\FluxerLePastWeeklyBuilder')
 if(-not $mutex.WaitOne(0)){exit 0}

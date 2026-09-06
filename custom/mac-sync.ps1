@@ -6,7 +6,9 @@ $key=Join-Path $env:USERPROFILE '.ssh/mpds_mac'
 $mac='mac@192.168.0.161'
 $sshArgs=@('-i',$key,'-o','BatchMode=yes','-o','ConnectTimeout=15')
 $mutex=[Threading.Mutex]::new($false,'Local\FluxerLePastMacBuilder')
-if(-not $mutex.WaitOne(0)){return}
+if(-not $mutex.WaitOne(0)){$mutex.Dispose();return}
+$result=$null
+$attempt=$null
 function MacRun([string]$program,[string[]]$arguments){
     & $program @arguments
     if($LASTEXITCODE -ne 0){throw "$program failed ($LASTEXITCODE)"}
