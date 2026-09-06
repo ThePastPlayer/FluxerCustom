@@ -41,7 +41,7 @@ try {
     $config=Get-Content custom/config.json -Raw | ConvertFrom-Json
     $changed=& git diff --name-only $config.upstreamCommit $candidate.commit
     if($LASTEXITCODE -ne 0){throw 'Cannot compare official sources'}
-    $critical=$changed | Where-Object {$_ -match '^(fluxer_desktop/src/(preload/|common/(DesktopConfig|Constants|DesktopIdentity|UserDataPath)|main/(Window|Ipc|Updater|Embedded|Permission|Security))|fluxer_desktop/(package\.json|scripts/|electron-builder)|pnpm-lock\.yaml|pnpm-workspace\.yaml|package\.json|tools/ci/)'}
+    $critical=$changed | Where-Object {$_ -match '^(fluxer_desktop/src/(preload/|common/(DesktopConfig|Constants|DesktopIdentity|UserDataPath)|main/(index|Window|Ipc|Updater|Embedded|Permission|Security))|fluxer_desktop/(package\.json|scripts/|electron-builder)|pnpm-lock\.yaml|pnpm-workspace\.yaml|package\.json|tools/ci/)'}
     if($critical){
         $result.status='review_required';$result.files=@($critical)
         throw 'Security/build/dependency changes require review; no automatic publication'

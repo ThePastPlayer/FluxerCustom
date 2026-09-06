@@ -32,7 +32,7 @@ La future architecture embarquée officielle demandera aussi une revue explicite
 Windows x64, Node 22+, Git, Rust MSVC + wasm32-unknown-unknown,
 Visual Studio 2022 C++, SDK .NET 8, LLVM 23.1.0.
 LLVM vérifié est installé dans :
-%LOCALAPPDATA%/Temp/FluxerCustom-tools/clang+llvm-23.1.0-x86_64-pc-windows-msvc
+E:/FluxerCustom/custom/.tools/llvm
 (clang.exe, llvm-ar.exe, lib/clang/23/include).
 Archive officielle : github.com/llvm/llvm-project, release llvmorg-23.1.0.
 Sur un nouveau PC, vérifier le SHA-256 contre le digest publié avant extraction.

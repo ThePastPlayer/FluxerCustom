@@ -9,7 +9,7 @@ function Invoke-Step([string]$Program, [string[]]$Arguments) {
     if($LASTEXITCODE -ne 0){ throw "$Program failed: $LASTEXITCODE" }
 }
 $rustRoot = Join-Path $env:USERPROFILE '.cargo/bin'
-$llvmRoot = Join-Path $env:LOCALAPPDATA 'Temp/FluxerCustom-tools/clang+llvm-23.1.0-x86_64-pc-windows-msvc/bin'
+$llvmRoot = Join-Path $PSScriptRoot '.tools/llvm/bin'
 if(-not (Test-Path (Join-Path $llvmRoot 'clang.exe'))){throw 'Install verified LLVM 23.1.0 first; see custom/README.md'}
 $env:PATH="$llvmRoot;$rustRoot;$env:PATH"
 $env:CC_wasm32_unknown_unknown=Join-Path $llvmRoot 'clang.exe'
