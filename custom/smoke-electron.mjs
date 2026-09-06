@@ -14,8 +14,15 @@ const launchEnv = {...process.env, LEPAST_TEST_PROFILE: 'smoke'};
 delete launchEnv.ELECTRON_RUN_AS_NODE;
 const packaged = process.argv.includes('--packaged');
 const installed = process.argv.includes('--installed');
+const mac = process.platform === 'darwin';
+const packagedExe = path.join(root, mac
+	? 'fluxer_desktop/dist-electron/mac-arm64/Fluxer LePast.app/Contents/MacOS/Fluxer LePast'
+	: 'fluxer_desktop/dist-electron/win-unpacked/Fluxer LePast.exe');
+const developmentExe = path.join(root, mac
+	? 'fluxer_desktop/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron'
+	: 'fluxer_desktop/node_modules/electron/dist/electron.exe');
 const instance = await _electron.launch({
-	executablePath: installed ? path.join(process.env.LOCALAPPDATA, 'FluxerLePast/current/Fluxer LePast.exe') : packaged ? path.join(root, 'fluxer_desktop/dist-electron/win-unpacked/Fluxer LePast.exe') : path.join(root, 'fluxer_desktop/node_modules/electron/dist/electron.exe'),
+	executablePath: installed ? (mac ? '/Applications/Fluxer LePast.app/Contents/MacOS/Fluxer LePast' : path.join(process.env.LOCALAPPDATA, 'FluxerLePast/current/Fluxer LePast.exe')) : packaged ? packagedExe : developmentExe,
 	args: packaged || installed ? [] : [path.join(root, 'fluxer_desktop')],
 	env: launchEnv,
 	timeout: 45000,
