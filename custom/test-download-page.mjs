@@ -50,13 +50,16 @@ try{
   // Native details must be keyboard accessible as well as clickable.
   await page.locator('#downloads summary').focus();
   await page.keyboard.press('Enter');
+  await page.locator('#mac-download').waitFor({state:'visible'});
   assert.ok(await page.locator('#mac-download').isVisible());
   assert.ok(await page.locator('#windows-download').isVisible());
   if(touch===5){await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);}
   await page.locator('#downloads summary').click();
+  await page.locator('#mac-download').waitFor({state:'hidden'});
   assert.equal(await page.locator('#downloads').evaluate(el=>el.open),false);
   if(!expected){
    await page.locator('#primary-download').click();
+   await page.locator('#windows-download').waitFor({state:'visible'});
    assert.equal(await page.locator('#downloads').evaluate(el=>el.open),true);
    assert.ok(await page.locator('#windows-download').isVisible());
   }
