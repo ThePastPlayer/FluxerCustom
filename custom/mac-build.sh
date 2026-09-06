@@ -38,6 +38,13 @@ security set-keychain-settings -lut 21600 "$KC"
 security unlock-keychain -p "$KCPW" "$KC"
 security import "$P12" -k "$KC" -P "$P12PW" -T /usr/bin/codesign >/dev/null
 security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KCPW" "$KC" >/dev/null
+# codesign also needs the temporary identity in the user's search list, even
+# with --keychain. delete-keychain in the EXIT trap removes only this entry.
+KEYCHAINS=()
+while IFS= read -r keychain; do
+  KEYCHAINS+=("$keychain")
+done < <(security list-keychains -d user | sed 's/^[[:space:]]*"//; s/"[[:space:]]*$//')
+security list-keychains -d user -s "$KC" "${KEYCHAINS[@]}"
 export CSC_KEYCHAIN="$KC"
 export CSC_NAME=$(security find-identity -v -p codesigning "$KC" | awk '/Developer ID Application:/ {print $2; exit}')
 [ -n "$CSC_NAME" ] || { echo 'Developer ID Application identity missing'; exit 1; }
