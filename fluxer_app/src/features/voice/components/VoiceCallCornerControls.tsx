@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import {ChannelHeaderIcon} from '@app/features/channel/components/channel_header_components/ChannelHeaderIcon';
-import {CallVolumeControl} from '@app/features/voice/components/CallVolumeControl';
+import {VoicePlaybackVolumeControl} from '@app/features/voice/components/VoicePlaybackVolumeControl';
+import type {TrackReferenceOrPlaceholder} from '@livekit/components-react';
 import {msg} from '@lingui/core/macro';
 import {useLingui} from '@lingui/react/macro';
 import type {Icon} from '@phosphor-icons/react';
@@ -15,6 +16,9 @@ const POP_OUT_CALL_DESCRIPTOR = msg({
 });
 
 interface VoiceCallCornerControlsProps {
+	focusedTrack?: TrackReferenceOrPlaceholder | null;
+	guildId?: string | null;
+	channelId?: string;
 	wrapClassName: string;
 	buttonClassName?: string;
 	showPopout: boolean;
@@ -27,6 +31,9 @@ interface VoiceCallCornerControlsProps {
 }
 
 export const VoiceCallCornerControls: React.FC<VoiceCallCornerControlsProps> = ({
+	focusedTrack,
+	guildId,
+	channelId,
 	wrapClassName,
 	buttonClassName,
 	showPopout,
@@ -52,7 +59,12 @@ export const VoiceCallCornerControls: React.FC<VoiceCallCornerControlsProps> = (
 	}, []);
 	return (
 		<div className={wrapClassName} data-flx="voice.voice-call-corner-controls.wrap">
-			<CallVolumeControl className={buttonClassName} data-flx="voice.voice-call-corner-controls.call-volume-control" />
+			<VoicePlaybackVolumeControl
+				focusedTrack={focusedTrack}
+				guildId={guildId}
+				channelId={channelId}
+				className={buttonClassName}
+			/>
 			{showPopout && onPopOut && (
 				<ChannelHeaderIcon
 					icon={PopOutIcon}

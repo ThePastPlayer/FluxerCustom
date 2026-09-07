@@ -167,3 +167,26 @@ Serveur lié uniquement à 127.0.0.1, vidéos canvas et identifiants synthétiqu
 Le test compare le contrôle défectueux et le vrai réglage de l'application,
 et exige plus de 100 images reçues simultanément en VP8 et H264 après correction.
 Il ne remplace pas la confirmation d'un appel iOS réel.
+
+## Volume du stream indépendant, corrigé en 1.0.5
+
+Le bouton en bas à droite près du plein écran pilotait le volume général de
+l'appel même lorsqu'un stream était affiché en grand. Il agit désormais sur
+le stream focalisé (volume et sourdine), avec le libellé « Stream volume ».
+Le réglage individuel de la voix, l'audio des autres streams et le volume
+général restent inchangés. Même comportement en vue compacte et en popout.
+Dans une vue d'appel sans stream focalisé, le bouton garde son rôle général.
+Un stream personnel ou sans piste audio ne propose pas de faux contrôle qui
+couperait les voix à la place.
+
+`node --test custom/test-stream-volume.mjs` exerce les vrais gestionnaires
+du bouton et l'application des préférences aux publications audio : volume
+0/25/200 %, mute/unmute du stream, voix à 80 %, autre session du même
+participant, mute vocal séparé et assourdissement global. Aucun compte ni
+salon réel utilisé pour ces vérifications.
+
+Retour arrière de cette version : conserver les paquets 1.0.4 et le commit
+précédent ; remettre uniquement le lien `public/current` (Windows) ou
+`public/current-darwin-arm64` (Mac) sur leur version précédente pour geler
+les nouvelles installations. Une rétrogradation des clients déjà installés
+nécessite un nouveau paquet avec un numéro supérieur, pas l'écrasement des profils.

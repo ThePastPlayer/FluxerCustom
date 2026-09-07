@@ -515,6 +515,9 @@ export const CompactVoiceCallViewInner: React.FC<CompactVoiceCallViewProps> = ob
 					data-flx="voice.compact-voice-call-view.compact-voice-call-view-inner.compact-call-height-toggle-button"
 				/>
 				<VoiceCallCornerControls
+					focusedTrack={!audioOnly && layoutMode === 'focus' ? focusMainTrack : null}
+					guildId={channel.guildId}
+					channelId={channel.id}
 					wrapClassName={clsx(styles.fullscreenButtonWrap, voiceCallStyles.voiceChrome)}
 					showPopout={isVoicePopoutSupported()}
 					onPopOut={handlePopOutCall}

@@ -19,7 +19,7 @@ if [ "${LEPAST_SKIP_COMPILE:-0}" != 1 ]; then node scripts/build.mjs; fi
 pnpm exec tsgo --noEmit
 node --test src/main/NativeScreenCapture.test.mjs src/main/NativeScreenCaptureValidation.test.mjs src/main/NativeHardwareEncoder.test.mjs
 cd "$ROOT"
-node --test custom/test-client.mjs custom/test-regressions.mjs
+node --test custom/test-client.mjs custom/test-regressions.mjs custom/test-stream-volume.mjs
 
 # Reuse the existing Wantap signing material in place. Never echo secrets,
 # export them to the repo, or alter the user's persistent keychain list.

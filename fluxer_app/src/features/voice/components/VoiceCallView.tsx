@@ -701,6 +701,9 @@ const VoiceCallViewInner = observer(
 						<VoiceControlBar data-flx="voice.voice-call-view.voice-call-view-inner.voice-control-bar" />
 					</div>
 					<VoiceCallCornerControls
+						focusedTrack={effectiveLayoutMode === 'focus' ? effectiveFocusMainTrack : null}
+						guildId={channel.guildId}
+						channelId={channel.id}
 						wrapClassName={clsx(styles.fullscreenButtonWrap, styles.voiceChrome)}
 						buttonClassName={styles.voiceHeaderIconButton}
 						showPopout={!inPopout && isVoicePopoutSupported()}
