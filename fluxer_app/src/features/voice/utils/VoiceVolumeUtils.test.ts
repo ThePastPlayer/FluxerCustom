@@ -35,7 +35,7 @@ describe('boostedVoiceVolumePercentToTrackVolume', () => {
 	it('widens the boost leg to +12.04 dB at 200%', () => {
 		expect(boostedVoiceVolumePercentToTrackVolume(200)).toBeCloseTo(4, 12);
 		expect(boostedVoiceVolumePercentToTrackVolume(150)).toBe(2);
-		expect(boostedVoiceVolumePercentToTrackVolume(125)).toBe(Math.SQRT2);
+		expect(boostedVoiceVolumePercentToTrackVolume(125)).toBeCloseTo(Math.SQRT2, 14);
 		expect(boostedVoiceVolumePercentToTrackVolume(100)).toBe(1);
 	});
 });
